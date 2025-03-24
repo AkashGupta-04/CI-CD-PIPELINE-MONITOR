@@ -1,7 +1,7 @@
 require("dotenv").config();
 const axios = require("axios");
 const AdmZip = require("adm-zip");
-const { processLogs } = require("../Services/logExtract");
+const { processLogs, cleanLogs } = require("../Services/logExtract");
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
@@ -161,21 +161,33 @@ const getLogs = async (req, res) => {
 
     let logs = {};
     zipEntries.forEach((entry) => {
-      if (!entry.isDirectory && entry.entryName.includes("build-and-deploy")) {
-        const logText = entry.getData().toString("utf-8"); // Convert buffer to string
+      if (!entry.isDirectory) {
+        const parts = entry.entryName.split("/");
 
-        logs[entry.entryName] = processLogs(logText);
+        // Ensure we process files only inside a folder (not root-level files)
+        if (parts.length > 1) {
+          const folderName = parts[0]; // Extract the folder name
+          const logText = entry.getData().toString("utf-8");
+
+          // Initialize folder structure if it doesn't exist
+          if (!logs[folderName]) logs[folderName] = {};
+
+          // Process log text and store it under the correct folder
+          logs[folderName][entry.entryName] = processLogs(logText);
+        }
       }
     });
 
-    const sortedLogs = Object.keys(logs)
-      .sort()
-      .reduce((acc, key) => {
-        acc[key] = logs[key];
-        return acc;
-      }, {});
+    const cleanedLog = cleanLogs(logs);
 
-    res.json({ sortedLogs });
+    // let sortedLogs = Object.keys(logs)
+    //   .sort()
+    //   .reduce((acc, key) => {
+    //     acc[key] = logs[key];
+    //     return acc;
+    //   }, {});
+
+    res.json({ cleanedLog });
   } catch (error) {
     console.log("Logs Error:", error);
     res.status(500).json({ error: "Failed to fetch Logs" });
