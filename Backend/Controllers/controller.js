@@ -33,10 +33,17 @@ const authenticationCallback = async (req, res) => {
     if (!accessToken)
       return res.status(400).json({ error: "Failed to get access token" });
 
-    req.session.accessToken = accessToken;
-    // console.log(req.session.accessToken);
+    console.log(accessToken);
 
-    res.json({ access_token: accessToken });
+    const userResponse = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const ownerName = userResponse.data.login;
+
+    return res.redirect(
+      `http://localhost:5000/dashboard?accessToken=${accessToken}&ownerName=${ownerName}`
+    );
   } catch (error) {
     console.error("OAuth error:", error);
     res.status(500).json({ error: "OAuth failed" });
@@ -44,8 +51,8 @@ const authenticationCallback = async (req, res) => {
 };
 
 const repositories = async (req, res) => {
-  const accessToken = req.session.accessToken;
-  // console.log(accessToken);
+  const accessToken = req.params.token;
+  console.log(accessToken);
   if (!accessToken) return res.status(401).json({ error: "Unauthorized" });
 
   try {
@@ -67,7 +74,8 @@ const repoCommits = async (req, res) => {
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    const accessToken = req.session.accessToken;
+    const accessToken = req.params.token;
+
     if (!accessToken) {
       return res.status(401).json({ error: "Unauthorized User" });
     }
@@ -92,7 +100,7 @@ const repoCommits = async (req, res) => {
 const extractId = async (req, res) => {
   try {
     const { owner, repo } = req.params;
-    const accessToken = req.session.accessToken;
+    const accessToken = req.params.token;
     if (!accessToken)
       return res.status(401).json({ error: "Unauthorized user" });
     const response = await axios.get(
@@ -144,7 +152,7 @@ const extractId = async (req, res) => {
 const getLogs = async (req, res) => {
   try {
     const { owner, repo, run_id } = req.params;
-    const accessToken = req.session.accessToken;
+    const accessToken = req.params.token;
     if (!accessToken)
       return res.status(401).json({ error: "Unauthorized user" });
 

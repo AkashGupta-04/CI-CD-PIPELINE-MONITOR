@@ -58,10 +58,10 @@ function processLogs(logText) {
       if (currentGroup) {
         stepLogs.push(line);
       } else {
-        if (!structuredLogs["Single Logs"]) {
-          structuredLogs["Single Logs"] = [];
+        if (!structuredLogs["SingleLogs"]) {
+          structuredLogs["SingleLogs"] = [];
         }
-        structuredLogs["Single Logs"].push(line);
+        structuredLogs["SingleLogs"].push(line);
       }
     }
   });
@@ -75,7 +75,7 @@ function processLogs(logText) {
 
   // Ensure single-line logs are stored
   if (!hasGroups && hasContent) {
-    structuredLogs["Single Logs"] = logLines.length
+    structuredLogs["SingleLogs"] = logLines.length
       ? logLines
       : ["(No additional logs)"];
   }
