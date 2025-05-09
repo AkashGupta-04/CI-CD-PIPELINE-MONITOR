@@ -42,7 +42,7 @@ const authenticationCallback = async (req, res) => {
     const ownerName = userResponse.data.login;
 
     return res.redirect(
-      `http://localhost:5000/dashboard?accessToken=${accessToken}&ownerName=${ownerName}`
+      `https://devbeacon.vercel.app/dashboard?accessToken=${accessToken}&ownerName=${ownerName}`
     );
   } catch (error) {
     console.error("OAuth error:", error);
