@@ -35,9 +35,10 @@ Dev Beacons enables:
 
 * Jayesh Akhare
 * Vedant Kumbhare
+* Akash Gupta
 * Nilay Chugh
 * Meet Pandey
-* Akash Gupta
+
 
 Guided by: **Prof. Dev Mukherjee**
 Department of Information Technology and Security
